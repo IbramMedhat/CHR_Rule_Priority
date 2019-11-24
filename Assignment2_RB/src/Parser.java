@@ -221,6 +221,12 @@ public class Parser {
 			}
 			ruleToAdd += "history(L),fire,match(r" + (i+1) + ",_," + ruleIDs + ") <=> ";
 			//TODO Adding actions and adding to history
+			String actionsToAdd = Rules.get(i).split("[<=>==>]")[1].split("pragma")[0];
+			String[] actionsArray = actionsToAdd.split(",");
+			for(int j = 0; j < actionsArray.length; j++) {
+				ruleToAdd += actionsArray[j] + ", ";
+			}
+			ruleToAdd += "history([(r" + (i+1) + "," + ruleIDs + ")|L]),start.";
 			writer.println(ruleToAdd);
 		}
 	}

@@ -25,5 +25,5 @@ conflictdone ,match(_,P1,_) \ match(_,P2,_)
 
 conflictdone <=> fire.
 
-a(ID),b(ID1)\c(ID2),history(L),fire,match(r1,_,[ID, ID1, ID2])
-a(ID),b(ID1),c(ID2),d(ID3),history(L),fire,match(r2,_,[ID, ID1, ID2, ID3])
+a(ID),b(ID1)\c(ID2),history(L),fire,match(r1,_,[ID, ID1, ID2]) <=> , history([(r1,[ID, ID1, ID2])|L]),start.
+a(ID),b(ID1),c(ID2),d(ID3),history(L),fire,match(r2,_,[ID, ID1, ID2, ID3]) <=> , history([(r2,[ID, ID1, ID2, ID3])|L]),start.
