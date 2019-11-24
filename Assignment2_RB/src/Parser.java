@@ -99,7 +99,7 @@ public class Parser {
 		writer.println();
 		
 		//TODO Firing phase
-		//GenerateFiringRules(Rules, writer);
+		GenerateFiringRules(Rules, writer);
 		
 		writer.close();
 		 
@@ -155,25 +155,72 @@ public class Parser {
 	
 	private void GenerateFiringRules(ArrayList<String> Rules, PrintWriter writer) {
 		for(int i = 0; i < Rules.size(); i++) {
-			// Simpagation Rules
 			String ruleToAdd = "";
+			// Simpagation Rules
+			ArrayList<String> ruleIDs = new ArrayList<String>();
 			if(Rules.get(i).contains("<=>") && Rules.get(i).contains("\\")) {
-				String conditionsToBeKept = Rules.get(i).split("\\")[0];
-				String conditionsToBeRemoved = Rules.get(i).split("<=>")[0].split("\\")[1];
+				String conditionsToBeKept = Rules.get(i).split("\\\\")[0];
+				String conditionsToBeRemoved = Rules.get(i).split("<=>")[0].split("\\\\")[1];
 				String[] conditionsKeptArray = conditionsToBeKept.split(",");
 				String[] conditionsRemovedArray = conditionsToBeRemoved.split(",");
 				for(int j = 0; j < conditionsKeptArray.length; j++) {
-					ruleToAdd += conditionsKeptArray[j] + "(ID" + j + ")";
+					if(j == 0) {
+						ruleToAdd += conditionsKeptArray[j] + "(ID)";
+						ruleIDs.add("ID");
+					} 
+					else {
+						ruleToAdd += conditionsKeptArray[j] + "(ID" + j + ")";
+						ruleIDs.add("ID" + j);
+					}
 					if(j < conditionsKeptArray.length - 1)
 						ruleToAdd += ",";
+					
 				}
 				ruleToAdd += "\\";
 				for(int j = 0; j < conditionsRemovedArray.length; j++) {
-					ruleToAdd += conditionsRemovedArray[j] + "(ID" + (conditionsKeptArray.length+1) + ")" ;
-					if(j < conditionsRemovedArray.length - 1)
+					ruleToAdd += conditionsRemovedArray[j] + "(ID" + ((conditionsKeptArray.length)+j) + ")" ;
+					ruleToAdd += ",";
+					ruleIDs.add("ID" + ((conditionsKeptArray.length)+j));
+				}
+				
+			}
+			// Probagation Rules
+			else if(Rules.get(i).contains("<=>")) {
+				String conditions = Rules.get(i).split("<=>")[0];
+				String[] conditionsArray = conditions.split(",");
+				for(int j = 0; j < conditionsArray.length; j++) {
+					if(j == 0) {
+						ruleToAdd += conditionsArray[j] + "(ID)";
+						ruleIDs.add("ID");
+					}
+					else {
+						ruleToAdd += conditionsArray[j] + "(ID" + j + ")";
+						ruleIDs.add("ID" + j);
+					}
 						ruleToAdd += ",";
 				}
 			}
+			// Simplification Rules
+			else {
+				String conditions = Rules.get(i).split("==>")[0];
+				String[] conditionsArray = conditions.split(",");
+				for(int j = 0; j < conditionsArray.length; j++) {
+					if(j == 0) {
+						ruleToAdd += conditionsArray[j] + "(ID)";
+						ruleIDs.add("ID");
+					}
+					else {
+						ruleToAdd += conditionsArray[j] + "(ID" + j + ")";
+						ruleIDs.add("ID" + j);
+					}
+					if(j < conditionsArray.length - 1)
+						ruleToAdd += ",";
+				}
+				ruleToAdd += "\\";
+				
+			}
+			ruleToAdd += "history(L),fire,match(r" + (i+1) + ",_," + ruleIDs + ") <=> ";
+			//TODO Adding actions and adding to history
 			writer.println(ruleToAdd);
 		}
 	}
