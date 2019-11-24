@@ -29,6 +29,10 @@ public class Parser {
 	
 	public void GenerateCHRFile() throws IOException {
 		ArrayList<String> Rules = parseIntoLines();
+		for(int i = 0; i < Rules.size(); i++){
+			Rules.set(i, Rules.get(i).replaceAll("\\s+", "")) ;
+			System.out.println(Rules.get(i));
+		}
 		PrintWriter writer = new PrintWriter("CHR^rp.pl", "UTF-8");
 		
 		// Adding library chr
@@ -37,13 +41,18 @@ public class Parser {
 		writer.println(":- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1, match/3,");
 		String charactersDefinition = "";
 		ArrayList<String> charactersSoFar = new ArrayList<String>();
+		ArrayList<String> actionsSoFar = new ArrayList<String>();
+		
 		for(int i = 0;i < Rules.size();i++) {
 			String[] headPreConditions;
-			if(Rules.get(i).contains("<=>"))
+			String[] actions;
+			if(Rules.get(i).contains("<=>")) {
 				headPreConditions = Rules.get(i).split("<=>");
-			else
+			}
+			else {
 				headPreConditions = Rules.get(i).split("==>");
-			String[] conditions = headPreConditions[0].split(",");
+			}
+			String[] conditions = headPreConditions[0].split(",");	
 			for(int j = 0; j < conditions.length;j++) {
 				System.out.println(conditions[j]);
 				
@@ -68,6 +77,21 @@ public class Parser {
 					+ conditions[j] + "/0,";
 				}
 			}
+			if(headPreConditions[1].split("pragma")[0].contains(",")) {
+				actions = headPreConditions[1].split("pragma")[0].split(",");
+				for(int j = 0; j < actions.length;j++) {
+					if(!charactersSoFar.contains(actions[j]) && !actionsSoFar.contains(actions[j])) {
+						//charactersSoFar.add(actions[j]);
+						charactersDefinition = charactersDefinition + actions[j] + "/0,";
+						actionsSoFar.add(actions[j]);
+					}
+				}
+			}
+			else if(!charactersSoFar.contains(headPreConditions[1].split("pragma")[0]) && !actionsSoFar.contains(headPreConditions[1].split("pragma")[0])) {
+				charactersDefinition = charactersDefinition + headPreConditions[1].split("pragma")[0] + "/0,";
+				actionsSoFar.add(headPreConditions[1].split("pragma")[0]);
+			}
+			
 		}
 		
 		// 
