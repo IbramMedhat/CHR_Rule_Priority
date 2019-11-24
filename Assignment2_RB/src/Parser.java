@@ -34,7 +34,7 @@ public class Parser {
 		// Adding library chr
 		writer.println(":- use_module(library(chr)).");
 		// Adding the chr constraints commen between all rules 
-		writer.println(":- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1,");
+		writer.println(":- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1, match/3,");
 		String charactersDefinition = "";
 		ArrayList<String> charactersSoFar = new ArrayList<String>();
 		for(int i = 0;i < Rules.size();i++) {
@@ -53,18 +53,19 @@ public class Parser {
 					
 					if(!charactersSoFar.contains(conditions[j].split("\\\\")[0])) {
 						charactersSoFar.add(conditions[j].split("\\\\")[0]);
-						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[0] + "/1,";
-						System.out.println("bkjqfqwk : " + conditions[j].split("\\\\")[0]);
+						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[0] + "/1,"
+						+ conditions[j].split("\\\\")[0] + "/0,";
 					}
 					if(!charactersSoFar.contains(conditions[j].split("\\\\")[1])) {
 						charactersSoFar.add(conditions[j].split("\\\\")[1]);
-						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[1] + "/1,";
-						System.out.println("bkjqfqwk : " + conditions[j].split("\\\\")[1]);
+						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[1] + "/1,"
+						+ conditions[j].split("\\\\")[1] + "/0,";
 					}
 				}
 				else if(!charactersSoFar.contains(conditions[j])) {
 					charactersSoFar.add(conditions[j]);
-					charactersDefinition = charactersDefinition + conditions[j] + "/1,";
+					charactersDefinition = charactersDefinition + conditions[j] + "/1,"
+					+ conditions[j] + "/0,";
 				}
 			}
 		}

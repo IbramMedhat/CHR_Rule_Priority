@@ -1,6 +1,6 @@
 :- use_module(library(chr)).
-:- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1,
-a/1,b/1,c/1,d/1.
+:- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1, match/3,
+a/1,a/0,b/1,b/0,c/1,c/0,d/1,d/0.
 
 id(I), a <=> a(I), I1 is I+1,id(I1).
 id(I), b <=> b(I), I1 is I+1,id(I1).
