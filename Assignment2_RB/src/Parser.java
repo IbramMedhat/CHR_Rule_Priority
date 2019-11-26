@@ -22,114 +22,122 @@ public class Parser {
 		ArrayList<String> lines = new ArrayList<String>();
 		String st;
 		while((st = br.readLine()) != null) {
-			lines.add(st);
+			if(st != "" && st != " " && st != "\n" && st.length() > 1) {
+				lines.add(st);
+			}
 		}
 		return lines;
 	}
 	
 	public void GenerateCHRFile() throws IOException {
+		
 		ArrayList<String> Rules = parseIntoLines();
-		for(int i = 0; i < Rules.size(); i++){
-			Rules.set(i, Rules.get(i).replaceAll("\\s+", "")) ;
-			System.out.println(Rules.get(i));
-		}
-		PrintWriter writer = new PrintWriter("CHR^rp.pl", "UTF-8");
 		
-		// Adding library chr
-		writer.println(":- use_module(library(chr)).");
-		// Adding the chr constraints commen between all rules 
-		writer.println(":- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1, match/3,");
-		String charactersDefinition = "";
-		ArrayList<String> charactersSoFar = new ArrayList<String>();
-		ArrayList<String> actionsSoFar = new ArrayList<String>();
-		
-		for(int i = 0;i < Rules.size();i++) {
-			String[] headPreConditions;
-			String[] actions;
-			if(Rules.get(i).contains("<=>")) {
-				headPreConditions = Rules.get(i).split("<=>");
+		if(Rules.size() > 0) {
+			
+			for(int i = 0; i < Rules.size(); i++){
+				Rules.set(i, Rules.get(i).replaceAll("\\s+", "")) ;
+				System.out.println(Rules.get(i));
 			}
-			else {
-				headPreConditions = Rules.get(i).split("==>");
-			}
-			String[] conditions = headPreConditions[0].split(",");	
-			for(int j = 0; j < conditions.length;j++) {
-				System.out.println(conditions[j]);
-				
-				if(conditions[j].contains("\\")) {
-
-
+			PrintWriter writer = new PrintWriter("CHR^rp.pl", "UTF-8");
+			
+			// Adding library chr
+			writer.println(":- use_module(library(chr)).");
+			// Adding the chr constraints commen between all rules 
+			writer.println(":- chr_constraint start/0, conflictdone/0,fire/0, id/1, history/1, match/3,");
+			String charactersDefinition = "";
+			ArrayList<String> charactersSoFar = new ArrayList<String>();
+			ArrayList<String> actionsSoFar = new ArrayList<String>();
+			
+			for(int i = 0;i < Rules.size();i++) {
+				String[] headPreConditions;
+				String[] actions;
+				if(Rules.get(i).contains("<=>")) {
+					headPreConditions = Rules.get(i).split("<=>");
+				}
+				else {
+					headPreConditions = Rules.get(i).split("==>");
+				}
+				String[] conditions = headPreConditions[0].split(",");	
+				for(int j = 0; j < conditions.length;j++) {
+					System.out.println(conditions[j]);
 					
-					if(!charactersSoFar.contains(conditions[j].split("\\\\")[0])) {
-						charactersSoFar.add(conditions[j].split("\\\\")[0]);
-						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[0] + "/1,"
-						+ conditions[j].split("\\\\")[0] + "/0,";
+					if(conditions[j].contains("\\")) {
+	
+	
+						
+						if(!charactersSoFar.contains(conditions[j].split("\\\\")[0])) {
+							charactersSoFar.add(conditions[j].split("\\\\")[0]);
+							charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[0] + "/1,"
+							+ conditions[j].split("\\\\")[0] + "/0,";
+						}
+						if(!charactersSoFar.contains(conditions[j].split("\\\\")[1])) {
+							charactersSoFar.add(conditions[j].split("\\\\")[1]);
+							charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[1] + "/1,"
+							+ conditions[j].split("\\\\")[1] + "/0,";
+						}
 					}
-					if(!charactersSoFar.contains(conditions[j].split("\\\\")[1])) {
-						charactersSoFar.add(conditions[j].split("\\\\")[1]);
-						charactersDefinition = charactersDefinition + conditions[j].split("\\\\")[1] + "/1,"
-						+ conditions[j].split("\\\\")[1] + "/0,";
-					}
-				}
-				else if(!charactersSoFar.contains(conditions[j])) {
-					charactersSoFar.add(conditions[j]);
-					charactersDefinition = charactersDefinition + conditions[j] + "/1,"
-					+ conditions[j] + "/0,";
-				}
-			}
-			if(headPreConditions[1].split("pragma")[0].contains(",")) {
-				if(headPreConditions[1].contains("|"))
-					actions = headPreConditions[1].split("pragma")[0].split("\\|")[1].split(",");
-				else
-					actions = headPreConditions[1].split("pragma")[0].split(",");
-				for(int j = 0; j < actions.length;j++) {
-					if(!charactersSoFar.contains(actions[j]) && !actionsSoFar.contains(actions[j])) {
-						//charactersSoFar.add(actions[j]);
-						charactersDefinition = charactersDefinition + actions[j] + "/0,";
-						actionsSoFar.add(actions[j]);
+					else if(!charactersSoFar.contains(conditions[j])) {
+						charactersSoFar.add(conditions[j]);
+						charactersDefinition = charactersDefinition + conditions[j] + "/1,"
+						+ conditions[j] + "/0,";
 					}
 				}
-			}
-			else if(!charactersSoFar.contains(headPreConditions[1].split("pragma")[0]) && !actionsSoFar.contains(headPreConditions[1].split("pragma")[0])) {
-				charactersDefinition = charactersDefinition + headPreConditions[1].split("pragma")[0] + "/0,";
-				actionsSoFar.add(headPreConditions[1].split("pragma")[0]);
+				if(headPreConditions[1].split("pragma")[0].contains(",")) {
+					if(headPreConditions[1].contains("|"))
+						actions = headPreConditions[1].split("pragma")[0].split("\\|")[1].split(",");
+					else
+						actions = headPreConditions[1].split("pragma")[0].split(",");
+					for(int j = 0; j < actions.length;j++) {
+						if(!charactersSoFar.contains(actions[j]) && !actionsSoFar.contains(actions[j])) {
+							//charactersSoFar.add(actions[j]);
+							charactersDefinition = charactersDefinition + actions[j] + "/0,";
+							actionsSoFar.add(actions[j]);
+						}
+					}
+				}
+				else if(!charactersSoFar.contains(headPreConditions[1].split("pragma")[0]) && !actionsSoFar.contains(headPreConditions[1].split("pragma")[0])) {
+					charactersDefinition = charactersDefinition + headPreConditions[1].split("pragma")[0] + "/0,";
+					actionsSoFar.add(headPreConditions[1].split("pragma")[0]);
+				}
+				
 			}
 			
+			// 
+			writer.println(charactersDefinition.substring(0,charactersDefinition.length() - 1) + ".");
+			writer.println();
+	//		System.out.println(charactersSoFar.get(2));
+			GenerateIDRules(charactersSoFar, writer);
+			writer.println();
+			GenerateMatchRules(Rules, writer);
+			writer.println();
+			writer.println("start <=> conflictdone.");
+			writer.println();
+			writer.println();
+			
+			// Matching Part
+			writer.println("history(L),conflictdone\\match(R,_,IDs) <=>");
+			writer.println("member((R,FIDs),L),sort(IDs,II),sort(FIDs,II)|true.");
+			writer.println();
+			
+			// Resolving Part
+			writer.println("conflictdone,match(_,P1,_)\\ match(_,P2,_)");
+			writer.println("<=> P1<P2 | true.");
+			writer.println();
+			
+			writer.println("conflictdone ,match(_,P1,_) \\ match(_,P2,_)");
+			writer.println("<=> P1 = P2, A is random(2), A = 1 | true.");
+			writer.println();
+			writer.println();
+			writer.println("conflictdone <=> fire.");
+			writer.println();
+			
+			//TODO Firing phase
+			GenerateFiringRules(Rules, writer);
+			
+			writer.close();
+			
 		}
-		
-		// 
-		writer.println(charactersDefinition.substring(0,charactersDefinition.length() - 1) + ".");
-		writer.println();
-		System.out.println(charactersSoFar.get(2));
-		GenerateIDRules(charactersSoFar, writer);
-		writer.println();
-		GenerateMatchRules(Rules, writer);
-		writer.println();
-		writer.println("start <=> conflictdone.");
-		writer.println();
-		writer.println();
-		
-		// Matching Part
-		writer.println("history(L),conflictdone\\match(R,_,IDs) <=>");
-		writer.println("member((R,FIDs),L),sort(IDs,II),sort(FIDs,II)|true.");
-		writer.println();
-		
-		// Resolving Part
-		writer.println("conflictdone,match(_,P1,_)\\ match(_,P2,_)");
-		writer.println("<=> P1<P2 | true.");
-		writer.println();
-		
-		writer.println("conflictdone ,match(_,P1,_) \\ match(_,P2,_)");
-		writer.println("<=> P1 = P2, A is random(2), A = 1 | true.");
-		writer.println();
-		writer.println();
-		writer.println("conflictdone <=> fire.");
-		writer.println();
-		
-		//TODO Firing phase
-		GenerateFiringRules(Rules, writer);
-		
-		writer.close();
 		 
 	}
 	
