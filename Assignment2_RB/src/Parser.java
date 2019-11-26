@@ -139,11 +139,23 @@ public class Parser {
 	private void GenerateMatchRules(ArrayList<String> Rules, PrintWriter writer) {
 		for(int i = 0; i < Rules.size(); i++) {
 			String ruleHead;
+			String ruleGuards = "";
 			String rulePriority = Rules.get(i).split("pragma")[1];
-			if(Rules.get(i).contains("<=>"))
+			if(Rules.get(i).contains("<=>")) {
 				ruleHead = Rules.get(i).split("<=>")[0];
-			else
+				if(Rules.get(i).split("<=>")[1].contains("|")) {
+					ruleGuards = Rules.get(i).split("<=>")[1].split("\\|")[0];
+					System.out.println(Rules.get(i).split("<=>")[1]);
+					System.out.println(Rules.get(i).split("<=>")[1].split("\\|")[1]);
+					System.out.println(ruleGuards);
+				}
+			}
+			else {
 				ruleHead = Rules.get(i).split("==>")[0];
+				if(Rules.get(i).split("==>")[1].contains("|")) {
+					ruleGuards = Rules.get(i).split("==>")[1].split("|")[0];
+				}
+			}	
 			String[] conditions = ruleHead.split("[,\\\\]");
 			String ruleToPrint = "r" +(i+1) + "@" + " ";
 			ArrayList<String> ruleIDs = new ArrayList<String>();
@@ -173,7 +185,24 @@ public class Parser {
 					ruleIDs.add("ID" + j);
 				}
 			}
-			ruleToPrint += " ==> match(r" + (i+1) + "," + rulePriority + "," + ruleIDs + ").";
+			
+			ruleToPrint += " ==> ";
+			String[] guardConditions;
+			if(!ruleGuards.contains(",") && ruleGuards != "") {
+				ruleToPrint += ruleGuards + " | ";
+			}
+			else if(ruleGuards != ""){
+				guardConditions = ruleGuards.split(",");
+				for(int j = 0;j < guardConditions.length;j++) {
+					if(j > 0)
+						ruleToPrint += ", ";
+					ruleToPrint += guardConditions[j];
+					if(j == guardConditions.length -1)
+						ruleToPrint += "|";
+					
+				}		
+			}
+			ruleToPrint += " match(r" + (i+1) + "," + rulePriority + "," + ruleIDs + ").";
 			writer.println(ruleToPrint);
 		}
 	}
