@@ -22,7 +22,7 @@ public class Parser {
 		ArrayList<String> lines = new ArrayList<String>();
 		String st;
 		while((st = br.readLine()) != null) {
-			if(st != "" && st != " " && st != "\n" && st.length() > 1) {
+			if(st != "" && st != " " && st != "\n" && st.length() > 0) {
 				lines.add(st);
 			}
 		}
