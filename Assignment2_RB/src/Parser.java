@@ -78,7 +78,10 @@ public class Parser {
 				}
 			}
 			if(headPreConditions[1].split("pragma")[0].contains(",")) {
-				actions = headPreConditions[1].split("pragma")[0].split(",");
+				if(headPreConditions[1].contains("|"))
+					actions = headPreConditions[1].split("pragma")[0].split("\\|")[1].split(",");
+				else
+					actions = headPreConditions[1].split("pragma")[0].split(",");
 				for(int j = 0; j < actions.length;j++) {
 					if(!charactersSoFar.contains(actions[j]) && !actionsSoFar.contains(actions[j])) {
 						//charactersSoFar.add(actions[j]);
